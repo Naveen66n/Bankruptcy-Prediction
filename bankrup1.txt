@@ -1,0 +1,52 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[ ]:
+
+
+import pandas as pd
+import streamlit as st
+from sklearn.linear_model import LogisticRegression
+
+
+# In[ ]:
+
+st.title('Model Deployment')
+st.sidebar.header('User Input Parameters')
+
+def user_input_features():
+    industrial_risk = st.sidebar.number_input("Insert the industrial_risk")
+    management_risk = st.sidebar.number_input("Insert the management_risk")
+    financial_flexibility = st.sidebar.number_input("Insert the financial_flexibility")
+    credibility = st.sidebar.number_input("Insert the credibility")
+    competitiveness = st.sidebar.number_input("Insert competitiveness")
+    operating_risk = st.sidebar.number_input("Insert operating_risk")
+    data = {'industrial_risk':industrial_risk,
+            'management_risk':management_risk,
+            'financial_flexibility':financial_flexibility,
+            'credibility':credibility,
+            'competitiveness':competitiveness,
+            'operating_risk':operating_risk}
+    features = pd.DataFrame(data,index = [0])
+    return features 
+    
+df = user_input_features()
+st.subheader('User Input parameters')
+st.write(df)
+
+bankrup = pd.read_csv("bankruptcy-prevention.csv", delimiter=';')
+
+X = bankrup.iloc[:,[1,2,3,4,5,6]]
+Y = bankrup.iloc[:,0]
+clf = LogisticRegression()
+clf.fit(X,Y)
+
+prediction = clf.predict(df)
+prediction_proba = clf.predict_proba(df)
+
+st.subheader('Predicted Result')
+st.write('bankrupt' if prediction_proba[0][1] > 0.5 else 'Non_bankrupt')
+
+st.subheader('Prediction Probability')
+st.write(prediction_proba)
+
